@@ -12,9 +12,9 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 #takes a dataframe and reformats to show subtotal breakdown
 def reformat(df):
     project_name = df['Project'].iloc[0]
-    df = df.groupby(['Account']).sum()
-    df.loc['Total'] = [df['Amount'].sum()] 
-    df.loc['Project Code'] = f"{project_name}"
+    df = df.groupby(['Account'],  as_index=False, sort=False).sum()
+    df = pd.concat([pd.DataFrame([['Total', df['Amount'].sum()]], columns=df.columns), df], ignore_index=True) 
+    df = pd.concat([pd.DataFrame([['Project Code', f"{project_name}"]], columns=df.columns), df], ignore_index=True) 
     return df
 
 #takes a sheet and returns a df, removes unnecessary columns 
@@ -57,14 +57,15 @@ def output_file(file):
         df_list = create_df_list(file, sheet_name)
         
         for df in df_list:
-            new_sheet = df['Amount'].iloc[-1]
-        #del wb[sheet_name]
-        #wb.create_sheet(title=sheet_name)
+            new_sheet = df['Amount'].iloc[0] #returns the saved project code value from the df 
+            wb.create_sheet(title=new_sheet)
 
-        #for r in dataframe_to_rows(df, index=False, header=True):
-        #    wb[sheet_name].append(r)
+            for r in dataframe_to_rows(df, index=False, header=True):
+                wb[new_sheet].append(r)
 
-        #wb.save('output_' + file)
+        del wb[sheet_name] 
+        wb.save('output_' + file)
+
 
 
 
@@ -74,6 +75,3 @@ files = [f.name for f in pathlib.Path().glob("*.xlsx")]
 #incrementing through all files present in the nterone folder 
 for file in files:
     output_file(file)
-
-
-
