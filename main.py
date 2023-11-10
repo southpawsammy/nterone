@@ -98,7 +98,7 @@ def append_sheet(wb, sheet_name, df):
     for r in dataframe_to_rows(df, index=False, header=True):
         wb[sheet_name].append(r)
 
-#Change column width and font of worksheet
+#Change column width and font of worksheet (Later will add more reformatting changes)
 def reformat_workbook(workbook):
 
     #change column width 
