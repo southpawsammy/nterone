@@ -5,7 +5,14 @@ import numbers
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 
-#library needed to use xlsx files 
+#Requirments for running properly
+# 1 - files need to be in .xlsx file format
+# 2 - Project codes in input file must be in alphabetical order
+# 
+
+#Directions for running
+# 3 - run python script 
+# 4 - output files will be generated in the same folder with "_output.xlsx" added to the corresponding input file 
 
 #import pip
 #pip.main(["install", "openpyxl"])
@@ -13,6 +20,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 #takes a dataframe and reformats to show subtotal breakdown
 def reformat(df):
     project_name = df['Project'].iloc[0]
+    df['Amount'] = -df['Amount'] #removing all negative signs from values in the dataframe 
     df = df.groupby(['Account'],  as_index=False, sort=False).sum()
     df = pd.concat([pd.DataFrame([['Total', df['Amount'].sum()]], columns=df.columns), df], ignore_index=True) 
     df = pd.concat([pd.DataFrame([['Project Code', f"{project_name}"]], columns=df.columns), df], ignore_index=True) 
@@ -60,9 +68,10 @@ def create_summary(df_list):
             if account_type not in column_values:
                 column_values.append(account_type)
     
-    column_values.remove('Total') #removing leftover 'Total' value from columns 
-
+    column_values.remove('Total') #removing leftover 'Total' value from columns
+    
     lst = []
+    total_column = [0] #will keep track of the total of each project as they are added to the summary
     df_summary = pd.DataFrame(lst, columns=column_values)
     
     #organize spending from each project code (row) by account type (column)
@@ -78,15 +87,22 @@ def create_summary(df_list):
             else:
                 lst_append.append(0) # add a comment about logic here
         df_summary.loc[len(df_summary)] = lst_append
+        total_column.append(round(sum(filter(lambda i: isinstance(i, float), lst_append)), 2))
     
-    #create and append final row that adds the total spending by account type (column)
-    total_row = ['Total']
+    #create and append final row that adds the total spending by account type
+    total_row = ['Account Total']
     for t in column_values:
         if t != 'Project Code':
             total_row.append(round(df_summary[t].sum(), 2))
-    
-    #add final row to the summary
-    df_summary.loc[len(df_summary)] = total_row
+
+    #insert total row to the top of the summary dataframe
+    df_summary.loc[-1] = total_row
+    df_summary = df_summary.sort_index().reset_index(drop=True)
+
+    #insert total column into summary dataframe
+    df_summary.insert(1, "Project Total", total_column, True)
+    total_all_projects = sum(total_column)
+    df_summary.at[0, 'Project Total'] = total_all_projects
 
     return df_summary
 
@@ -128,10 +144,19 @@ def output_file(file):
 
         del wb[sheet_name] 
         reformat_workbook(wb)
-        wb.save('output_' + file)
+        #wb.save('output_' + file)
 
 files = [f.name for f in pathlib.Path().glob("*.xlsx")]
 
 #incrementing through all files present in the nterone folder 
 for file in files:
     output_file(file)
+
+#changes to make
+# 1 - remove negatives from the final values (DONE)
+# 2 - add total column to summary for the project codes (DONE)
+# 3 - move total row to the top of the summary across account types (DONE)
+# 4 - breakdown across account type for each project according to memo column "Course Lab Video"
+# 5 - section at bottom of each project reports aggregating entries without a "couse" or "lab" value 
+# 6 - figure out how to deploy for easy use of program
+# 7 - relax
