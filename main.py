@@ -3,6 +3,8 @@ import numpy as np
 import pathlib
 import numbers
 from openpyxl import load_workbook
+from openpyxl.styles import DEFAULT_FONT
+from openpyxl.styles import Font
 from openpyxl.utils.dataframe import dataframe_to_rows
 
 #Requirments for running properly
@@ -31,7 +33,7 @@ def create_df_list(file, sheet):
     df = pd.read_excel(file, sheet_name = sheet)
     df = df[df['Type'] == 'Bill']
 
-    df = df.drop('Num', axis=1)
+    df = df.drop('Num', axis=1) 
     df = df.drop('Name', axis=1)
     df = df.drop('Type', axis=1)
     df = df.drop('Date', axis=1)
@@ -122,13 +124,20 @@ def reformat_workbook(workbook):
         dims = {}
         for row in sheet.rows:
             for cell in row:
+                #cell style changes
+                if cell.row == 1:
+                    cell.font = Font(name="Arial",
+                                     bold=True,
+                                    sz=8)
+                else:
+                    cell.font = Font(name="Arial",
+                                     sz=8)
                 if cell.value:
                     dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))    
         for col, value in dims.items():
             sheet.column_dimensions[col].width = value
-    
 
-#takes an input excel file saves an output file to the directory with the Project cost breakdowns sheet by sheet
+#takes an input excel file saves an output file to the directory with the Pro ject cost breakdowns sheet by sheet
 def output_file(file):
     wb = load_workbook(file)
 
@@ -144,7 +153,7 @@ def output_file(file):
 
         del wb[sheet_name] 
         reformat_workbook(wb)
-        #wb.save('output_' + file)
+        wb.save('output_' + file)
 
 files = [f.name for f in pathlib.Path().glob("*.xlsx")]
 
@@ -157,6 +166,11 @@ for file in files:
 # 2 - add total column to summary for the project codes (DONE)
 # 3 - move total row to the top of the summary across account types (DONE)
 # 4 - breakdown across account type for each project according to memo column "Course Lab Video"
+# # - example "Course 1 Lab 2"
+# # 1 - reformat the project columns 
+# # 2 -
+# # 3 -
+
 # 5 - section at bottom of each project reports aggregating entries without a "couse" or "lab" value 
 # 6 - figure out how to deploy for easy use of program
 # 7 - relax
