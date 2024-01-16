@@ -133,7 +133,12 @@ def reformat_workbook(workbook):
                     cell.font = Font(name="Arial",
                                      sz=8)
                 if cell.value:
-                    dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))    
+                    dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))
+                try:    
+                    cell.value = int(format (int(cell.value), ',d')) # str(('{:,}'.format(float(cell.value)))) #add commas to cell values 
+                except ValueError:
+                    continue
+
         for col, value in dims.items():
             sheet.column_dimensions[col].width = value
 
@@ -157,20 +162,6 @@ def output_file(file):
 
 files = [f.name for f in pathlib.Path().glob("*.xlsx")]
 
-#incrementing through all files present in the nterone folder 
+#incrementing through all files present in folder 
 for file in files:
     output_file(file)
-
-#changes to make
-# 1 - remove negatives from the final values (DONE)
-# 2 - add total column to summary for the project codes (DONE)
-# 3 - move total row to the top of the summary across account types (DONE)
-# 4 - breakdown across account type for each project according to memo column "Course Lab Video"
-# # - example "Course 1 Lab 2"
-# # 1 - reformat the project columns 
-# # 2 -
-# # 3 -
-
-# 5 - section at bottom of each project reports aggregating entries without a "couse" or "lab" value 
-# 6 - figure out how to deploy for easy use of program
-# 7 - relax
