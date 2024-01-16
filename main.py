@@ -7,18 +7,6 @@ from openpyxl.styles import DEFAULT_FONT
 from openpyxl.styles import Font
 from openpyxl.utils.dataframe import dataframe_to_rows
 
-#Requirments for running properly
-# 1 - files need to be in .xlsx file format
-# 2 - Project codes in input file must be in alphabetical order
-# 
-
-#Directions for running
-# 3 - run python script 
-# 4 - output files will be generated in the same folder with "_output.xlsx" added to the corresponding input file 
-
-#import pip
-#pip.main(["install", "openpyxl"])
-
 #takes a dataframe and reformats to show subtotal breakdown
 def reformat(df):
     project_name = df['Project'].iloc[0]
