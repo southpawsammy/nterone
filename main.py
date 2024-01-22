@@ -6,6 +6,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import DEFAULT_FONT
 from openpyxl.styles import Font
 from openpyxl.utils.dataframe import dataframe_to_rows
+import sys
 
 #takes a dataframe and reformats to show subtotal breakdown
 def reformat(df):
@@ -18,7 +19,7 @@ def reformat(df):
 
 #takes a sheet and returns a df, removes unnecessary columns 
 def create_df_list(file, sheet):
-    df = pd.read_excel(file, sheet_name = sheet)
+    df = pd.read_excel(file, sheet_name = sheet, engine='openpyxl')
     df = df[df['Type'] == 'Bill']
 
     df = df.drop('Num', axis=1) 
@@ -136,7 +137,12 @@ def output_file(file):
 
     for sheet in wb.worksheets:
         sheet_name = sheet.title
-        df_list = create_df_list(file, sheet_name)
+        try:
+            df_list = create_df_list(file, sheet_name)
+        except KeyError:
+            print("Remove old output files from folder before running script")
+            input()
+
         df_summary = create_summary(df_list)
         append_sheet(wb, 'Summary', df_summary) #first add the summary to the workbook
 
@@ -152,4 +158,14 @@ files = [f.name for f in pathlib.Path().glob("*.xlsx")]
 
 #incrementing through all files present in folder 
 for file in files:
+    print("processing file...")
     output_file(file)
+
+if len(files) == 0:
+    print("No files to process. Add .xlsx files to same folder")
+else:
+    print("file(s) processed")
+
+
+input() #blocks execution to keep main.exe command prompt open til closed by user
+
