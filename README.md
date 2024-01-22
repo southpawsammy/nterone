@@ -36,9 +36,8 @@ append_sheet: adds rows from input dataframe to selected workbook
 reformat_workbook: change column width and font of worksheet 
 
 Progression (from beginning of output_file function):
-1 - Load workbook from input file and run a loop on all sheets in workbook
-
-2 - In each sheet in the workbook:
+# 1 - Load workbook from input file and run a loop on all sheets in workbook
+# 2 - In each sheet in the workbook:
     A - run (create_df_list) and reorganize the sheet by Project Code into a list of dataframes 
     B - Use the output of (create_df_list) to create a singular summary dataframe that highlights all Project Code and Account types in the current sheet
     C - Append the summary dataframe to the workbook
@@ -46,4 +45,4 @@ Progression (from beginning of output_file function):
     E - Reformat the font, size, and emphasis on various values in the workbook
     F - Save the workbook as a new file in the current folder
 
-3 - Repeat this process for all sheets in the input file (each sheet in the input file should create a new file)
+# 3 - Repeat this process for all sheets in the input file (each sheet in the input file should create a new file)
